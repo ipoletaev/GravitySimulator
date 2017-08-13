@@ -1,0 +1,5 @@
+# to activate venv for this project please run the following command:
+# source activate_venv
+source "venv/bin/activate"
+DEST_DIR=$(pwd)"/venv"
+export PYTHONPATH="${PYTHONPATH}:$DEST_DIR/local/lib/python2.7/dist-packages/:$DEST_DIR/local/lib64/python2.7/dist-packages/"

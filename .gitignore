@@ -1,0 +1,6 @@
+.idea/
+*.pyc
+*.xcodeproj
+*.o
+src/build/
+venv/
