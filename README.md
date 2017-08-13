@@ -31,9 +31,10 @@ All of the advanced derer renoptions you can tune in the `../src/bg_renderer_cpp
 
 ### Examples
 Solar system mode:
-![screen-1](https://github.com/ipoletaev/GravitySimulator/screen_1.png)
+  ![screen-1](http://imgur.com/W5h7gE6.png)
+
 Planet & moon mode:
-![screen-2](https://github.com/ipoletaev/GravitySimulator/screen_2.png)
+  ![screen-2](http://imgur.com/PmxbZRC.png)
 
 ### Misc
 Programm uses pygame library to create window and display there moving of the particels with some specific masses.
