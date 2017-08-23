@@ -25,12 +25,15 @@ All of the advanced derer renoptions you can tune in the `../src/bg_renderer_cpp
 
 ### Examples
 The Solar System:
+
   ![screen-1](http://imgur.com/vBltGHV.png)
 
 Planet and its moon:
+
   ![screen-2](http://imgur.com/RDI4lQK.png)
   
 Gravitational maneuver:
+
   ![screen-3](http://imgur.com/RP5cb6Z.png)
 
 ### Misc
