@@ -2,23 +2,23 @@
 
 DEST_DIR="venv";         # folder where the virtual environment will be installed
 
-command -v python -m pip >/dev/null 2>&1 || { # Check if pip is installed
+# Check if pip is installed
+command -v python -m pip >/dev/null 2>&1 || {
     echo "No 'pip' is installed. Aborting..." >&2;
     exit 1;
 }
 
-
-command -v python -m virtualenv >/dev/null 2>&1 || { # Check if virtualenv is installed
+# Check if virtualenv is installed
+command -v python -m virtualenv >/dev/null 2>&1 || {
     echo "No 'virtualenv' is installed. Installing ..." >&1;
-    python -m pip install virtualenv || { # Try to install a virtualenv if none is found
+    python -m pip install virtualenv || {
         echo "Installation of 'virtualenv' failed. Aborting..." >&2;
         exit 1;
     }
 }
 
-
 if [ -d $DEST_DIR ]; then
-    echo "You are about to delete '$DEST_DIR'. Do you want to proceed (Y/N)?";
+    echo "Do you want to delete '$DEST_DIR' (Y/N)?";
     read ANSWER;
     ANSWER=$(echo "$ANSWER" | awk '{print toupper($0)}');
     case "$ANSWER" in
@@ -32,7 +32,6 @@ if [ -d $DEST_DIR ]; then
         ;;
     esac
 fi
-
 
 echo "Creating a virtual environment in '$DEST_DIR'"
 python -m virtualenv "$DEST_DIR" || {
@@ -48,20 +47,18 @@ source $DEST_DIR"/bin/activate" || {
     echo "Failed to activate the created virtual environment" >&2;
     exit 1;
 }
-export PYTHONPATH="${PYTHONPATH}:$DEST_DIR/local/lib/python2.7/dist-packages/:$DEST_DIR/local/lib64/python2.7/dist-packages/"
 
+export PYTHONPATH="${PYTHONPATH}:$DEST_DIR/local/lib/python2.7/dist-packages/:$DEST_DIR/local/lib64/python2.7/dist-packages/"
 
 pip install pip==9.0.1 || {
     echo "Failed to upgrade 'pip' to v.9.0.1" >&2;
     exit 1;
 }
 
-
 pip install --upgrade -r ./requirements.txt || {
     echo "Failed to install / upgrade one or more items listed in requirements.txt" >&2;
     exit 1;
 }
-
 
 pushd ./src || exit 1
     echo "Compile sources for generator test..."
@@ -76,7 +73,5 @@ pushd ./src || exit 1
 popd
 
 
-#deactivate # command to deactivate virtual environment
-
-
+# "deactivate" - command to deactivate a virtual environment
 echo "Everything for usage is ready!"

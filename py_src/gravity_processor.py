@@ -1,22 +1,12 @@
 # -*- coding: utf-8 -*-
+import config
 import math
 import numpy as np
 from collections import deque
 import copy
+from utils import create_satellite_image
 
 #TODO: rewrite this part of code in C/C++
-
-# physics settings #
-GRAVITY_CONSTANT = 6.67
-TIME_STEP = 0.08
-PARTICLES_SCALE = 1/30.0
-MAX_MASS = 20
-# -*- -*- -*- -*- #
-
-# choose appropriate mode #
-INNER_SOLAR_SYSTEM = True
-MOON_AND_EARTH = False
-# -*- -*- -*- -*- #
 
 class Particle:
 
@@ -93,18 +83,18 @@ class Particle:
         # the simplest method for the integration of motion equations
         # https://en.wikipedia.org/wiki/Verlet_integration
 
-        self.__position[0] += (self.__velocity[0] * TIME_STEP + acceleration[0] * (TIME_STEP ** 2)) / 2.0
-        self.__position[1] += (self.__velocity[1] * TIME_STEP + acceleration[1] * (TIME_STEP ** 2)) / 2.0
+        self.__position[0] += (self.__velocity[0] * config.TIME_STEP + acceleration[0] * (config.TIME_STEP ** 2)) / 2.0
+        self.__position[1] += (self.__velocity[1] * config.TIME_STEP + acceleration[1] * (config.TIME_STEP ** 2)) / 2.0
 
-        self.__velocity[0] += acceleration[0] * TIME_STEP
-        self.__velocity[1] += acceleration[1] * TIME_STEP
+        self.__velocity[0] += acceleration[0] * config.TIME_STEP
+        self.__velocity[1] += acceleration[1] * config.TIME_STEP
 
-        self.__position[0] += (self.__velocity[0] * TIME_STEP) / 2.0
-        self.__position[1] += (self.__velocity[1] * TIME_STEP) / 2.0
+        self.__position[0] += (self.__velocity[0] * config.TIME_STEP) / 2.0
+        self.__position[1] += (self.__velocity[1] * config.TIME_STEP) / 2.0
 
         if centred: # draw picture centered by the system's mass center
-            self.__position[0] -= centroid_speed[0] * TIME_STEP
-            self.__position[1] -= centroid_speed[1] * TIME_STEP
+            self.__position[0] -= centroid_speed[0] * config.TIME_STEP
+            self.__position[1] -= centroid_speed[1] * config.TIME_STEP
 
     def get_info(self):
 
@@ -114,16 +104,20 @@ class GravityProcessor:
 
     """ Simulator of gravity interaction between the particles with specific characteristics """
 
-    def __init__(self, planets, img_w, img_h, particles_number=1):
+    def __init__(self, planets_images, img_w, img_h, particles_number=1):
 
         self.img_w, self.img_h = img_w, img_h
-        self.particles_images = planets
-        assert len(planets) >= particles_number
+        self.particles_images = planets_images
+        assert len(planets_images) >= particles_number
 
-        if INNER_SOLAR_SYSTEM:
-            self.particles, self.centroid_speed = self.get_inner_solar_system()
-        elif MOON_AND_EARTH:
-            self.particles, self.centroid_speed = self.get_earth_and_moon()
+        if config.MODE == "inner_solar_system":
+            self.particles, self.centroid_speed = self.inner_solar_system()
+        elif config.MODE == "planet_and_moon":
+            self.particles, self.centroid_speed = self.planet_and_moon()
+        elif config.MODE == "gravitational_maneuver":
+            self.particles, self.centroid_speed = self.gravitational_maneuver()
+        else:
+            raise Exception('Wrong mode type! Exit..')
         self.particles_number = len(self.particles)
 
     def update(self):
@@ -144,7 +138,7 @@ class GravityProcessor:
 
     def get_size(self, mass):
 
-        return PARTICLES_SCALE * self.img_w * math.pow(mass / MAX_MASS, 1/3.)
+        return config.PARTICLES_SCALE * self.img_w * math.pow(mass / config.MAX_MASS, 1/3.)
 
     def calc_force(self, id_1, id_2, m_1, m_2, position_1, position_2):
 
@@ -154,12 +148,15 @@ class GravityProcessor:
         r_y = position_2[1] - position_1[1]
         r = math.sqrt(r_x ** 2 + r_y ** 2)
 
-        F_x = GRAVITY_CONSTANT * m_1 * m_2 * r_x / (r ** 3)
-        F_y = GRAVITY_CONSTANT * m_1 * m_2 * r_y / (r ** 3)
+        F_x = config.GRAVITY_CONSTANT * m_1 * m_2 * r_x / (r ** 3)
+        F_y = config.GRAVITY_CONSTANT * m_1 * m_2 * r_y / (r ** 3)
 
         return [F_x, F_y] # force's components on the plane
 
-    def get_inner_solar_system(self):
+
+    ### DIFFERENT MODES METHODS ###
+
+    def inner_solar_system(self):
 
         # inner solar system with almost correct proportions
 
@@ -171,7 +168,7 @@ class GravityProcessor:
         masses = [5.5, 81.5, 100, 10.7]
         sizes = [self.get_size(mass) for mass in masses]
         distances = np.array([0.38, 0.72, 1.0, 1.52]) * (self.img_w / 2.) + (self.img_w / 5.)
-        velocities = [math.sqrt(GRAVITY_CONSTANT * sun_mass / dist) for dist in distances]
+        velocities = [math.sqrt(config.GRAVITY_CONSTANT * sun_mass / dist) for dist in distances]
 
         planets = []
         centroid_speed = np.array([0., 0.])
@@ -187,7 +184,7 @@ class GravityProcessor:
         centroid_speed /= (sum(masses) + sun_mass)
         return planets, centroid_speed
 
-    def get_earth_and_moon(self):
+    def planet_and_moon(self):
 
         # example of the planet and its moon motion
 
@@ -201,7 +198,7 @@ class GravityProcessor:
         dist_to_earth = sun_position + dist
         earth = Particle(2, 200, self.particles_images[3], self.get_size(100),
                          position=[dist_to_earth, self.img_h / 2],
-                         velocity=[0, math.sqrt(GRAVITY_CONSTANT * sun_mass / dist)])
+                         velocity=[0, math.sqrt(config.GRAVITY_CONSTANT * sun_mass / dist)])
 
         moon = Particle(3, 0.05, self.particles_images[1], self.get_size(100 / 81.),
                          position=[dist_to_earth - dist / 20., self.img_h / 2],
@@ -209,3 +206,27 @@ class GravityProcessor:
 
         planets = [sun, earth, moon]
         return planets, [0.0, 0.0]
+
+    def gravitational_maneuver(self):
+
+        # Acceleration of the satellite during a flight near Jupiter
+
+        sun_mass = 30000
+        sun_position = self.img_w / 2
+        sun = Particle(1, sun_mass, self.particles_images[0], self.get_size(sun_mass / 100),
+                       position=[sun_position, self.img_h /2], velocity=[0, 0])
+
+        dist = self.img_w / 3.
+        dist_to_jupiter = sun_position + dist
+        jupiter = Particle(2, 500, self.particles_images[5], self.get_size(100),
+                           position=[dist_to_jupiter, self.img_h / 2],
+                           velocity=[0, math.sqrt(config.GRAVITY_CONSTANT * sun_mass / dist)])
+
+        satellite_img = create_satellite_image()
+        satellite = Particle(3, 0.01, satellite_img, self.get_size(100 / 81.),
+                             position=[21 * self.img_w / 100, self.img_h / 2],
+                             velocity=[0, -21.8])
+
+        planets = [sun, jupiter, satellite]
+        return planets, [0.0, 0.0]
+

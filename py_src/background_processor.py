@@ -1,27 +1,14 @@
 # -*- coding: utf-8 -*-
-from collections import namedtuple
 from threading import Thread, Event
 from bg_renderer import BackgroundGenerator
 import numpy as np
 import time
 
-class SimulatorSettings:
-
-    __default_settings = namedtuple('Settings', ['window_width', 'window_height'])
-    __default_settings.__new__.__defaults__ = (900, 650)
-
-    def __init__(self):
-
-        default_settings = SimulatorSettings.__default_settings()
-        self.window_width = default_settings.window_width
-        self.window_height = default_settings.window_height
-
-    def set_window_size(self, width, height):
-
-        self.window_width, self.window_height = width, height
-
-
 class BackGroundUpdater(Thread):
+
+    """
+    This class allows to update the background in a separate thread from the main.
+    """
 
     def __init__(self, img_w, img_h, transform_function, state):
 
