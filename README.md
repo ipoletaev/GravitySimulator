@@ -21,7 +21,7 @@ After it, you can start the simulator:
 ```
 python main.py
 ```
-All of the advanced renderer renoptions you can tune in the `../src/bg_renderer_cpp/renderer.cpp` file.
+All of the advanced renderer options you can tune in the `../src/bg_renderer_cpp/renderer.cpp` file.
 
 ### Examples
 The Solar System:
@@ -32,8 +32,7 @@ Planet and its moon:
 
   ![screen-2](http://imgur.com/RDI4lQK.png)
   
-Gravitational maneuver:
-
+Gravitational slingshot:
   ![screen-3](http://imgur.com/RP5cb6Z.png)
 
 ### Misc

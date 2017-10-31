@@ -114,8 +114,10 @@ class GravityProcessor:
             self.particles, self.centroid_speed = self.inner_solar_system()
         elif config.MODE == "planet_and_moon":
             self.particles, self.centroid_speed = self.planet_and_moon()
-        elif config.MODE == "gravitational_maneuver":
-            self.particles, self.centroid_speed = self.gravitational_maneuver()
+        elif config.MODE == "slingshot":
+            self.particles, self.centroid_speed = self.slingshot()
+        elif config.MODE == "double_slingshot":
+            self.particles, self.centroid_speed = self.double_slingshot()
         else:
             raise Exception('Wrong mode type! Exit..')
         self.particles_number = len(self.particles)
@@ -153,6 +155,16 @@ class GravityProcessor:
 
         return [F_x, F_y] # force's components on the plane
 
+    def calc_centered_velocity(self, particles):
+
+        vel = np.array([0.0,0.0])
+        sum_mass = 0.
+
+        for particle in particles:
+            vel += np.array(particle.velocity) * particle.mass
+            sum_mass += particle.mass
+
+        return (vel / sum_mass).tolist()
 
     ### DIFFERENT MODES METHODS ###
 
@@ -171,18 +183,15 @@ class GravityProcessor:
         velocities = [math.sqrt(config.GRAVITY_CONSTANT * sun_mass / dist) for dist in distances]
 
         planets = []
-        centroid_speed = np.array([0., 0.])
         for i, (init_v, mass) in enumerate(zip(velocities, masses)):
             planets.append(
                 Particle(i + 1, mass, self.particles_images[i + 1], sizes[i],
                          position=[distances[i], self.img_h /2],
                          velocity=[0, init_v])
             )
-            centroid_speed += mass * np.array([0, init_v])
 
         planets = [sun] + planets
-        centroid_speed /= (sum(masses) + sun_mass)
-        return planets, centroid_speed
+        return planets, self.calc_centered_velocity(planets)
 
     def planet_and_moon(self):
 
@@ -205,9 +214,9 @@ class GravityProcessor:
                          velocity=[0, earth.velocity[1] / 1.5])
 
         planets = [sun, earth, moon]
-        return planets, [0.0, 0.0]
+        return planets,  self.calc_centered_velocity(planets)
 
-    def gravitational_maneuver(self):
+    def slingshot(self):
 
         # Acceleration of the satellite during a flight near Jupiter
 
@@ -225,8 +234,36 @@ class GravityProcessor:
         satellite_img = create_satellite_image()
         satellite = Particle(3, 0.01, satellite_img, self.get_size(100 / 81.),
                              position=[21 * self.img_w / 100, self.img_h / 2],
-                             velocity=[0, -21.8])
+                             velocity=[0, -21.6])
+
 
         planets = [sun, jupiter, satellite]
-        return planets, [0.0, 0.0]
+        return planets, self.calc_centered_velocity(planets)
 
+    def double_slingshot(self):
+
+        # Acceleration of the satellite during a flight near Earth and Venus
+
+        sun_mass = 30000
+        sun_position = self.img_w / 2
+        sun = Particle(1, sun_mass, self.particles_images[0], self.get_size(sun_mass / 100),
+                       position=[sun_position, self.img_h /2], velocity=[0, 0])
+
+        dist = self.img_w * 0.35
+        dist_to_venus = sun_position
+        venus = Particle(2, 80, self.particles_images[2], self.get_size(80),
+                         position=[dist_to_venus, 3 * self.img_h / 4],
+                         velocity=[-math.sqrt(config.GRAVITY_CONSTANT * sun_mass / (0.72 * dist)), 0])
+
+        dist_to_earth = sun_position + dist
+        earth = Particle(2, 110, self.particles_images[3], self.get_size(100),
+                         position=[dist_to_earth, self.img_h / 2],
+                         velocity=[0, math.sqrt(config.GRAVITY_CONSTANT * sun_mass / dist)])
+
+        satellite_img = create_satellite_image()
+        satellite = Particle(3, 0.005, satellite_img, self.get_size(1.3),
+                             position=[(sun_position - self.img_w / 3.) * 1.15, self.img_h / 2],
+                             velocity=[14, -22])
+
+        planets = [sun, venus, earth, satellite]
+        return planets, self.calc_centered_velocity(planets)

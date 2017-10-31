@@ -2,7 +2,7 @@
 
 # -*- Misceleneous -*- #
 LIVE_BACKGROUND = False # simulation of the flickering star sky
-RUNNING, PAUSE = 1, 0  # some const variables
+RUNNING, PAUSE = 1, 0   # some const variables
 
 # -*- Buttons settings -*- #
 BUTTON_WIDTH = 70
@@ -17,15 +17,16 @@ IMAGES_OF_PLANETS_PATH = 'planets_images'
 
 # -*- Physical parameters of simulation -*- #
 GRAVITY_CONSTANT = 6.67
-TIME_STEP = 0.2
+TIME_STEP = 0.3
 PARTICLES_SCALE = 1/30.0
 MAX_MASS = 20
 
 
 # -*- Simulation mode settings -*- #
-MODE = "gravitational_maneuver"
+MODE = "double_slingshot"
 # possible options:
 # "inner_solar_system"
 # "planet_and_moon"
-# "gravitational_maneuver"
+# "slingshot"
+# "double_slingshot"
 # -*- -*- -*- -*- #
