@@ -21,7 +21,7 @@ After it, you can start the simulator:
 ```
 python main.py
 ```
-All of the advanced derer renoptions you can tune in the `../src/bg_renderer_cpp/renderer.cpp` file.
+All of the advanced renderer renoptions you can tune in the `../src/bg_renderer_cpp/renderer.cpp` file.
 
 ### Examples
 The Solar System:
