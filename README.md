@@ -1,4 +1,4 @@
-# GravitySimulator v.0.1.1
+# GravitySimulator v.0.1.2
 Simulation of the particle behavior under the gravitational force influence.
 
 ### Requirements:
