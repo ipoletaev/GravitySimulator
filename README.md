@@ -3,7 +3,7 @@ Simulation of the particle behavior under the gravitational force influence.
 
 ### Requirements:
 * Python 2.7
-* OpenGL
+* OpenGL ([link](http://www.prinmath.com/csci5229/misc/install.html) how to install)
 * c++ compiler
 
 ### Build
