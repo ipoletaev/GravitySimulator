@@ -33,6 +33,7 @@ Planet and its moon:
   ![screen-2](http://imgur.com/RDI4lQK.png)
   
 Gravitational slingshot:
+
   ![screen-3](http://imgur.com/RP5cb6Z.png)
 
 ### Misc
